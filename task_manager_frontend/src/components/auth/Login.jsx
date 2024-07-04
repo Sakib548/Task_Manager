@@ -1,21 +1,45 @@
-import { useContext, useState } from "react";
+import axios from "axios";
+import React, { useContext, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../context/AuthContext";
 
 const Login = () => {
-  const [formData, setFormData] = useState({
-    email: "",
-    password: "",
-  });
-
+  const [formData, setFormData] = useState({ email: "", password: "" });
+  const { dispatch, loadUser } = useContext(AuthContext);
+  const navigate = useNavigate();
   const { email, password } = formData;
-  const { login } = useContext(AuthContext);
 
   const onChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    login(email, password);
+
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const body = JSON.stringify({ email, password });
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5001/api/users/login",
+        body,
+        config
+      );
+      dispatch({
+        type: "LOGIN_SUCCESS",
+        payload: res.data,
+      });
+      loadUser();
+      navigate("/dashboard");
+    } catch (err) {
+      dispatch({
+        type: "LOGIN_FAIL",
+      });
+    }
   };
 
   return (

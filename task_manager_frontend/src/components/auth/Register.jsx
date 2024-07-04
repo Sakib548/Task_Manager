@@ -1,4 +1,5 @@
-import { useContext, useState } from "react";
+import axios from "axios";
+import React, { useContext, useState } from "react";
 import { AuthContext } from "../../context/AuthContext";
 
 const Register = () => {
@@ -7,18 +8,41 @@ const Register = () => {
     email: "",
     password: "",
   });
+  const { dispatch, loadUser } = useContext(AuthContext);
 
   const { name, email, password } = formData;
-  const { register } = useContext(AuthContext);
 
   const onChange = (e) =>
     setFormData({ ...formData, [e.target.name]: e.target.value });
 
-  const onSubmit = (e) => {
+  const onSubmit = async (e) => {
     e.preventDefault();
-    register({ name, email, password });
-  };
 
+    const config = {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    };
+
+    const body = JSON.stringify({ name, email, password });
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5001/api/users/register",
+        body,
+        config
+      );
+      dispatch({
+        type: "REGISTER_SUCCESS",
+        payload: res.data,
+      });
+      loadUser();
+    } catch (err) {
+      dispatch({
+        type: "REGISTER_FAIL",
+      });
+    }
+  };
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-100">
       <div className="w-full max-w-md">

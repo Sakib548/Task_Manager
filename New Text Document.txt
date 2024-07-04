@@ -1,0 +1,9 @@
+kx21WO5obcX65Zfs
+
+ useEffect(() => {
+    if (state.token) {
+      loadUser();
+    } else {
+      dispatch({ type: "AUTH_ERROR" });
+    }
+  }, []);
